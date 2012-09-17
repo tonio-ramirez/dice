@@ -1,5 +1,10 @@
-// Package dice ...
-// TODO add documentation
+/*
+Package dice provides simple dice-rolling methods allowing rolling of many varieties.
+
+Two methods are exported: Roll() and RollP().  Roll() receives a textual description
+of the dice roll (e.g. "3d6+1"), while RollP() receives each parameter separately.
+RollP() is faster, since it involves no parsing.
+*/
 package dice
 
 import (
@@ -8,16 +13,34 @@ import (
 	"strconv"
 )
 
+/*
+DiceRoll represents the result of a single dice roll.
+
+    NumberOfDice       # how many dice are rolled
+    DieFaces           # how many sides on each dice
+    Adder              # static quantity to add to the total of the dice roll
+    Half               # whether a half-die is rolled (in addition to
+                             the number of dice specified in NumberOfDice)
+    Rolls              # the individual dice rolls
+    RawTotal           # the total of all the Rolls, the half-die (if any), and Adder
+    Total              # The maximum of RawTotal and 1
+
+Note that RawTotal can be negative (due to a negative Adder), but Total is never less than 1
+*/
 type DiceRoll struct {
 	NumberOfDice int
-	DieFaces int
-	Adder    int
-	Half bool
-	Rolls    []int
-	RawTotal int
-	Total    int
+	DieFaces     int
+	Adder        int
+	Half         bool
+	Rolls        []int
+	RawTotal     int
+	Total        int
 }
 
+/*
+Description returns a textual description of the dice roll.  It uses
+the same format expected by Roll()
+*/
 func (dr *DiceRoll) Description() string {
 	var adder, half string
 	if dr.Adder < 0 {
@@ -56,12 +79,22 @@ func newDiceRollP(number, faces, adder int, half bool, rng intRng) *DiceRoll {
 	return d
 }
 
+/*
+RollP() generates a new DiceRoll based on the specified parameters.
+*/
 func RollP(number, faces, adder int, half bool) *DiceRoll {
 	return newDiceRollP(number, faces, adder, half, localRng)
 }
 
 var diceExp = regexp.MustCompile(`^([1-9][0-9]*)?(\.5)?[dD]([1-9][0-9]*)([+-][1-9][0-9]*)?$`)
 
+/*
+Roll() generates a new dice roll based on parameters obtained from parsing the passed string.
+
+The expected format is <NumDice>d<DieFaces>[Adder], where NumDice is the number of dice to roll,
+DieFaces is how many sides per die, and Adder is a static quantity to add to the total.  Adder
+must start with "+" or "-", and NumDice may end with ".5" to indicate a half die.
+*/
 func Roll(description string) (*DiceRoll, error) {
 	return newDiceRoll(description, localRng)
 }
