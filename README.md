@@ -27,6 +27,6 @@ type DiceRoll struct {
 ```    
 `DiceRoll` objects have a method `Description()` which returns a description like the one used to roll with `dice.Roll()`.
 
-Additionally, a `throwdice` runnable is included, which can take anu number of dice roll descriptions as command-line arguments and prints the result for each.
+Additionally, a `throwdice` runnable is included, which can take any number of dice roll descriptions as command-line arguments and prints the result for each. It will also read from stdin if no command-line arguments are given, stopping on EOF or "exit" or "quit" (case insensitive).
 
 (Yes, it's all very simple and not extremely useful... it's mostly an excercise on Go on my part.)
