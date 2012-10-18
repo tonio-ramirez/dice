@@ -1,9 +1,10 @@
 /*
 Package dice provides simple dice-rolling methods allowing rolling of many varieties.
 
-Two methods are exported: Roll() and RollP().  Roll() receives a textual description
+Three methods are exported: Roll(), RollP(), and RollD6().  Roll() receives a textual description
 of the dice roll (e.g. "3d6+1"), while RollP() receives each parameter separately.
-RollP() is faster, since it involves no parsing.
+RollP() is faster, since it involves no parsing. RollD6() receives the number of 6-sided dice to
+roll using the D6 system (see README for an explanation).
 */
 package dice
 
@@ -97,8 +98,8 @@ func RollP(number, faces, adder int, half bool) *DiceRoll {
 /*
 RollD6() generates a new DiceRoll based on the D6 system.
 
-The number of dice specified is rolled, and if the last die is a 6, it is re-rolled and
-added to the total, until the newly-rolled die is not 6.
+The number of dice specified is rolled, the last die being a "wild" die.  "Wild" dice
+trigger an additional "wild" die to be rolled when coming up "6".
 */
 func RollD6(number int) *DiceRoll {
 	return newDiceRollP(number, 6, 0, false, localRng, true)

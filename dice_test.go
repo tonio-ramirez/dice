@@ -50,6 +50,14 @@ func TestRollD6(t *testing.T) {
 	if dice.Total != 22 {
 		t.Errorf("Expected 22, got %v.", dice.Total)
 	}
+	rng = &testRng{Max: 6}
+	dice = newDiceRollP(1, 6, 0, false, rng, true)
+	if dice.NumberOfDice != 1 {
+		t.Errorf("Expected 1 die, got %v.", dice.NumberOfDice)
+	}
+	if dice.Total != 1 {
+		t.Errorf("Expected 1, got %v.", dice.Total)
+	}
 }
 
 func ExampleDiceRoll_Description() {
