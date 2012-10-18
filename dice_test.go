@@ -25,19 +25,30 @@ func (r *testRng) Intn(n int) (v int) {
 
 func TestRoll(t *testing.T) {
 	rng := &testRng{Max: 6}
-	dice := newDiceRollP(6, 6, -1, false, rng)
+	dice := newDiceRollP(6, 6, -1, false, rng, false)
 	if dice.Total != 20 {
 		t.Errorf("Expected 20, got %v.", dice.Total)
 	}
 	rng = &testRng{Max: 10}
-	dice = newDiceRollP(20, 10, 2, false, rng)
+	dice = newDiceRollP(20, 10, 2, false, rng, false)
 	if dice.Total != 112 {
 		t.Errorf("Expected 112, got %v.", dice.Total)
 	}
 	rng = &testRng{Max: 6}
-	dice = newDiceRollP(1, 6, 0, true, rng)
+	dice = newDiceRollP(1, 6, 0, true, rng, false)
 	if dice.Total != 3 {
 		t.Errorf("Expected 3, got %v.", dice.Total)
+	}
+}
+
+func TestRollD6(t *testing.T) {
+	rng := &testRng{Max: 6}
+	dice := newDiceRollP(6, 6, 0, false, rng, true)
+	if dice.NumberOfDice != 7 {
+		t.Errorf("Expected 7 dice, got %v.", dice.NumberOfDice)
+	}
+	if dice.Total != 22 {
+		t.Errorf("Expected 22, got %v.", dice.Total)
 	}
 }
 
