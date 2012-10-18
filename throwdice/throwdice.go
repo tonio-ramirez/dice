@@ -26,9 +26,16 @@ func usage() {
 	flag.PrintDefaults()
 }
 
-func main() {
+var d6 bool
+
+func init() {
 	flag.Usage = usage
+	flag.BoolVar(&d6, "d6", false, "use the d6 system")
+}
+
+func main() {
 	flag.Parse()
+
 	if flag.NArg() < 1 {
 		reader := bufio.NewReader(os.Stdin)
 		for {
@@ -59,9 +66,18 @@ func main() {
 }
 
 func printDiceRoll(description string) {
-	if roll, err := dice.Roll(description); err != nil {
-		fmt.Println(err)
+	if d6 {
+		if number, err := strconv.Atoi(description); err != nil {
+			fmt.Println(err)
+		} else {
+			roll := dice.RollD6(number)
+			fmt.Printf("%v (%v)\n", roll.Total, strings.Join(intsToStrings(roll.Rolls), ", "))
+		}
 	} else {
-		fmt.Printf("%v (%v)\n", roll.Total, strings.Join(intsToStrings(roll.Rolls), ", "))
+		if roll, err := dice.Roll(description); err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Printf("%v (%v)\n", roll.Total, strings.Join(intsToStrings(roll.Rolls), ", "))
+		}
 	}
 }

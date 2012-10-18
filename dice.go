@@ -1,9 +1,10 @@
 /*
 Package dice provides simple dice-rolling methods allowing rolling of many varieties.
 
-Two methods are exported: Roll() and RollP().  Roll() receives a textual description
+Three methods are exported: Roll(), RollP(), and RollD6().  Roll() receives a textual description
 of the dice roll (e.g. "3d6+1"), while RollP() receives each parameter separately.
-RollP() is faster, since it involves no parsing.
+RollP() is faster, since it involves no parsing. RollD6() receives the number of 6-sided dice to
+roll using the D6 system (see README for an explanation).
 */
 package dice
 
@@ -58,12 +59,20 @@ func (dr *DiceRoll) Description() string {
 	return fmt.Sprintf("%v%vd%v%v", dr.NumberOfDice, half, dr.DieFaces, adder)
 }
 
-func newDiceRollP(number, faces, adder int, half bool, rng intRng) *DiceRoll {
+func newDiceRollP(number, faces, adder int, half bool, rng intRng, repeatOnMaxLast bool) *DiceRoll {
 	d := &DiceRoll{NumberOfDice: number, DieFaces: faces, Adder: adder, Half: half}
 	d.Rolls = make([]int, number)
 	for i := 0; i < number; i++ {
 		d.Rolls[i] = rng.Intn(faces) + 1
 		d.RawTotal += d.Rolls[i]
+	}
+	if repeatOnMaxLast {
+		for d.Rolls[d.NumberOfDice-1] == faces {
+			d.NumberOfDice = d.NumberOfDice + 1
+			newDie := rng.Intn(faces) + 1
+			d.Rolls = append(d.Rolls, newDie)
+			d.RawTotal += newDie
+		}
 	}
 	if half {
 		halfDie := rng.Intn(faces/2) + 1
@@ -83,7 +92,17 @@ func newDiceRollP(number, faces, adder int, half bool, rng intRng) *DiceRoll {
 RollP() generates a new DiceRoll based on the specified parameters.
 */
 func RollP(number, faces, adder int, half bool) *DiceRoll {
-	return newDiceRollP(number, faces, adder, half, localRng)
+	return newDiceRollP(number, faces, adder, half, localRng, false)
+}
+
+/*
+RollD6() generates a new DiceRoll based on the D6 system.
+
+The number of dice specified is rolled, the last die being a "wild" die.  "Wild" dice
+trigger an additional "wild" die to be rolled when coming up "6".
+*/
+func RollD6(number int) *DiceRoll {
+	return newDiceRollP(number, 6, 0, false, localRng, true)
 }
 
 var diceExp = regexp.MustCompile(`^([1-9][0-9]*)?(\.5)?[dD]([1-9][0-9]*)([+-][1-9][0-9]*)?$`)
@@ -96,10 +115,10 @@ DieFaces is how many sides per die, and Adder is a static quantity to add to the
 must start with "+" or "-", and NumDice may end with ".5" to indicate a half die.
 */
 func Roll(description string) (*DiceRoll, error) {
-	return newDiceRoll(description, localRng)
+	return newDiceRoll(description, localRng, false)
 }
 
-func newDiceRoll(description string, rng intRng) (*DiceRoll, error) {
+func newDiceRoll(description string, rng intRng, repeatOnMaxLast bool) (*DiceRoll, error) {
 	parts := diceExp.FindStringSubmatch(description)
 	if parts == nil {
 		return nil, fmt.Errorf("Bad description: %v", description)
@@ -123,5 +142,5 @@ func newDiceRoll(description string, rng intRng) (*DiceRoll, error) {
 	} else if adder, err = strconv.Atoi(adderS); err != nil {
 		return nil, fmt.Errorf("Bad adder: %v", adderS)
 	}
-	return newDiceRollP(number, faces, adder, half, rng), nil
+	return newDiceRollP(number, faces, adder, half, rng, repeatOnMaxLast), nil
 }
