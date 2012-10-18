@@ -7,8 +7,9 @@ import (
 )
 
 type testRng struct {
-	Max, current int
-	lk           sync.Mutex
+	Max     int
+	current int
+	lk      sync.Mutex
 }
 
 func (r *testRng) Intn(n int) (v int) {
