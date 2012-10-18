@@ -24,7 +24,7 @@ func (r *lockedSource) Seed(seed int64) {
 	r.lk.Unlock()
 }
 
-var localRng = rand.New(&lockedSource{src: rand.NewSource(time.Now().Unix())})
+var localRng = rand.New(&lockedSource{src: rand.NewSource(time.Now().UnixNano())})
 
 type intRng interface {
 	Intn(n int) int
