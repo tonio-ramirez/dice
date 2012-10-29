@@ -21,16 +21,17 @@ func intsToStrings(ints []int) (strings []string) {
 
 func usage() {
 	fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
-	fmt.Fprintf(os.Stderr, "  "+os.Args[0]+" [<roll description>...]\n")
+	fmt.Fprintf(os.Stderr, "  " + os.Args[0] + " [<roll description>...]\n")
 	fmt.Fprintf(os.Stderr, "  -help\tprints this help message\n")
 	flag.PrintDefaults()
 }
 
-var d6 bool
+var (
+	d6 = flag.Bool("d6", false, "use the d6 system")
+)
 
 func init() {
 	flag.Usage = usage
-	flag.BoolVar(&d6, "d6", false, "use the d6 system")
 }
 
 func main() {
@@ -74,7 +75,7 @@ func printDiceRoll(description string) {
 }
 
 func generateDiceRoll(description string) (*dice.DiceRoll, error) {
-	if d6 {
+	if *d6 {
 		if number, err := strconv.Atoi(description); err != nil {
 			return nil, fmt.Errorf("Bad number of dice: %v", description)
 		} else {
