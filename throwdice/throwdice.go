@@ -66,18 +66,20 @@ func main() {
 }
 
 func printDiceRoll(description string) {
+	if roll, err := generateDiceRoll(description); err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Printf("%v (%v)\n", roll.Total, strings.Join(intsToStrings(roll.Rolls), ", "))
+	}
+}
+
+func generateDiceRoll(description string) (*dice.DiceRoll, error) {
 	if d6 {
 		if number, err := strconv.Atoi(description); err != nil {
-			fmt.Println(err)
+			return nil, fmt.Errorf("Bad number of dice: %v", description)
 		} else {
-			roll := dice.RollD6(number)
-			fmt.Printf("%v (%v)\n", roll.Total, strings.Join(intsToStrings(roll.Rolls), ", "))
-		}
-	} else {
-		if roll, err := dice.Roll(description); err != nil {
-			fmt.Println(err)
-		} else {
-			fmt.Printf("%v (%v)\n", roll.Total, strings.Join(intsToStrings(roll.Rolls), ", "))
+			return dice.RollD6(number), nil
 		}
 	}
+	return dice.Roll(description)
 }
